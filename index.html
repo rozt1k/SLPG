@@ -442,105 +442,168 @@
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // 1. АНІМАЦІЯ ПОЯВИ ЕЛЕМЕНТІВ (Intersection Observer)
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px 0px -50px 0px',
-            threshold: 0.1
-        };
 
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                    observer.unobserve(entry.target);
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+
+            
+
+            // 1. Анімація появи елементів (Intersection Observer - супер легкий, без сторонніх бібліотек)
+
+            const observerOptions = {
+
+                root: null,
+
+                rootMargin: '0px 0px -50px 0px',
+
+                threshold: 0.1
+
+            };
+
+
+
+            const observer = new IntersectionObserver((entries, observer) => {
+
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+
+                        entry.target.classList.add('active');
+
+                        observer.unobserve(entry.target); // Анімуємо лише один раз
+
+                    }
+
+                });
+
+            }, observerOptions);
+
+
+
+            document.querySelectorAll('.reveal').forEach((el) => {
+
+                observer.observe(el);
+
             });
-        }, observerOptions);
 
-        document.querySelectorAll('.reveal').forEach((el) => {
-            observer.observe(el);
+
+
+            // 2. Модальне вікно для карти
+
+            const mapThumbnail = document.getElementById('mapThumbnail');
+
+            const mapModal = document.getElementById('mapModal');
+
+            const closeModal = document.getElementById('closeModal');
+
+            const mapFullImage = document.getElementById('mapFullImage');
+
+
+
+            if (mapThumbnail && mapModal && closeModal) {
+
+                mapThumbnail.addEventListener('click', function() {
+
+                    mapModal.classList.remove('hidden');
+
+                    mapModal.classList.add('flex');
+
+                    document.body.style.overflow = 'hidden'; 
+
+                });
+
+
+
+                function doClose() {
+
+                    mapModal.classList.add('hidden');
+
+                    mapModal.classList.remove('flex');
+
+                    document.body.style.overflow = ''; 
+
+                }
+
+
+
+                closeModal.addEventListener('click', doClose);
+
+                mapModal.addEventListener('click', doClose);
+
+
+
+                if (mapFullImage) {
+
+                    mapFullImage.addEventListener('click', function(e) {
+
+                        e.stopPropagation(); 
+
+                    });
+
+                }
+
+            }
+
+
+
+            // 3. Зміна стилю шапки при скролі
+
+            const header = document.querySelector('header');
+
+            window.addEventListener('scroll', function() {
+
+                if (window.scrollY > 50) {
+
+                    header.classList.add('py-2', 'shadow-md');
+
+                    header.classList.remove('py-4', 'shadow-sm');
+
+                } else {
+
+                    header.classList.add('py-4', 'shadow-sm');
+
+                    header.classList.remove('py-2', 'shadow-md');
+
+                }
+
+            });
+
         });
 
-        // 2. МОДАЛЬНЕ ВІКНО ДЛЯ КАРТИ
-        const mapThumbnail = document.getElementById('mapThumbnail');
-        const mapModal = document.getElementById('mapModal');
-        const closeModal = document.getElementById('closeModal');
-        const mapFullImage = document.getElementById('mapFullImage');
+    </script>
 
-        if (mapThumbnail && mapModal && closeModal) {
-            mapThumbnail.addEventListener('click', function() {
-                mapModal.classList.remove('hidden');
-                mapModal.classList.add('flex');
-                document.body.style.overflow = 'hidden'; 
-            });
 
-            function doClose() {
-                mapModal.classList.add('hidden');
-                mapModal.classList.remove('flex');
-                document.body.style.overflow = ''; 
-            }
 
-            closeModal.addEventListener('click', doClose);
-            mapModal.addEventListener('click', doClose);
+    <script>
 
-            if (mapFullImage) {
-                mapFullImage.addEventListener('click', function(e) {
-                    e.stopPropagation(); 
-                });
-            }
-        }
+            const btn = document.getElementById('mobile-menu-button');
 
-        // 3. СИНХРОНІЗАЦІЯ ШАПКИ ТА МОБІЛЬНОГО МЕНЮ ПРИ СКРОЛІ
-        const header = document.querySelector('header');
-        const menu = document.getElementById('mobile-menu');
-        const btn = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('mobile-menu');
 
-        window.addEventListener('scroll', function() {
-            if (window.scrollY > 50) {
-                header.classList.add('py-2', 'shadow-md');
-                header.classList.remove('py-4', 'shadow-sm');
-                // Коли шапка стискається, коригуємо позицію меню під нову висоту
-                if (menu) {
-                    menu.classList.remove('top-20');
-                    menu.classList.add('top-[64px]'); // Нова висота стиснутої шапки
-                }
-            } else {
-                header.classList.add('py-4', 'shadow-sm');
-                header.classList.remove('py-2', 'shadow-md');
-                // Повертаємо дефолтне позиціонування
-                if (menu) {
-                    menu.classList.remove('top-[64px]');
-                    menu.classList.add('top-20');
-                }
-            }
+
+
+        btn.addEventListener('click', () => {
+
+        menu.classList.toggle('hidden');
+
         });
 
-        // 4. ЛОГІКА КЛІКІВ ДЛЯ МОБІЛЬНОГО МЕНЮ
-        if (btn && menu) {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
+
+
+        // Щоб меню закривалося при кліку на пункт
+
+        menu.querySelectorAll('a').forEach(link => {
+
+            link.addEventListener('click', () => {
+
+                menu.classList.add('hidden');
+
             });
 
-            // Закриваємо меню при кліку на будь-яке посилання
-            menu.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    menu.classList.add('hidden');
-                });
-            });
+        });
 
-            // Клік повз меню автоматично його згортає
-            document.addEventListener('click', (e) => {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
-        }
-    });
-</script>
+    </script> 
+
+
     
 </body>
 </html>
